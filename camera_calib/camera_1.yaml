@@ -1,0 +1,61 @@
+%YAML:1.0
+
+
+CAMERA_ID: 0
+IMAGE_TYPE: 1 # 1-> disparity, 0 -> stereo gray
+
+LEFT.width: 752
+LEFT.height: 480
+
+RIGHT.width: 752
+RIGHT.height: 480
+
+OUTPUT.width: 752
+OUTPUT.height: 480
+
+LEFT_TOPIC: /gi/rgb/depth/image_raw
+RIGHT_TOPIC: /gi/rgb/depth/image_raw
+
+LEFT.K: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [ 3.7380961986e+02, 0., 3.820499737e+02,
+           0., 3.7467481086e+02, 2.3797663548e+02,
+           0., 0., 1. ]
+
+RIGHT.K: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [ 3.7405712551e+02, 0., 3.8267132695e+02,
+           0., 3.7423973747e+02, 2.5559726762e+02,
+           0., 0., 1. ]
+
+LEFT.D: !!opencv-matrix
+   rows: 1
+   cols: 4
+   dt: d
+   data: [ -2.80140578e-01, 5.90308610e-02,  1.21988383e-03, -2.61627716e-04]
+
+RIGHT.D: !!opencv-matrix
+   rows: 1
+   cols: 4
+   dt: d
+   data: [-0.29722692,  0.06796334,  0.00113904,  0.00212699]
+
+R12: !!opencv-matrix
+   rows: 3
+   cols: 3
+   dt: d
+   data: [ 9.9937710927086232e-01, 6.6574256442889260e-04,
+       -3.5283852571012152e-02, -5.6122884603209517e-04,
+       9.9999542639097438e-01, 2.9719049977514483e-03,
+       3.5285669720120018e-02, -2.9502515098184757e-03,
+       9.9937291214462654e-01 ]
+
+t12: !!opencv-matrix
+   rows: 3
+   cols: 1
+   dt: d
+   data: [ -0.1196912874657054, 8.226041646204108e-05, -0.0003374657316917672 ]
