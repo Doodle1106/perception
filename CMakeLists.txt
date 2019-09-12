@@ -40,6 +40,7 @@ set (THIRD_PARTY_LIBS
         ${OpenCV_LIBS}
         ${catkin_LIBRARIES}
         ${GLOG_LIBRARIES}
+        ${PCL_LIBRARIES}
         )
 
 include_directories(
@@ -62,7 +63,11 @@ add_library(perception
         src/VisionFusionNode.cpp
         src/Camera.cpp)
 
-cs_add_executable(VisionFusionNode_run src/VisionFusionNode_run.cpp src/Camera.cpp)
+cs_add_executable(VisionFusionNode_run
+        src/VisionFusionNode_run.cpp
+        src/Camera.cpp
+        src/PointCloudFilter.cpp)
+
 target_link_libraries(VisionFusionNode_run ${perception} ${THIRD_PARTY_LIBS})
 
 ##########

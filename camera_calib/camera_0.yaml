@@ -60,4 +60,19 @@ t12: !!opencv-matrix
    rows: 3
    cols: 1
    dt: d
-   data: [ -0.1196912874657054, 8.226041646204108e-05, -0.0003374657316917672 ]
+   data: [ -0.12, 0.0, 0.0]
+
+
+Rbc: !!opencv-matrix
+  rows: 3
+  cols: 3
+  dt: d
+  data: [ 1.0, 0.0, 0.0,
+          0.0, 1.0, 0.0,
+          0.0, 0.0, 1.0]
+
+tbc: !!opencv-matrix
+  rows: 3
+  cols: 1
+  dt: d
+  data: [ 0.0, 0.0, 0.2]

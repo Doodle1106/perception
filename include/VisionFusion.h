@@ -19,6 +19,8 @@ namespace perception {
 
     public:
 
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
         VisionFusion(vector<shared_ptr<Camera> > camera_ptrs);
 
         void AddImage(int idx, cv::Mat& imgL, cv::Mat& imgR);

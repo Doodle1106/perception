@@ -43,6 +43,10 @@ namespace perception {
 
     public:
 
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+        PointCloudFilter();
+
         PointCloudFilter(std::string config_path);
 
         //PCL related pointcloud helper functions

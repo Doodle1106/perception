@@ -13,7 +13,7 @@ RIGHT.height: 480
 OUTPUT.width: 752
 OUTPUT.height: 480
 
-LEFT_TOPIC: none
+LEFT_TOPIC: nonero
 RIGHT_TOPIC: none
 DEPTH_TOPIC: /gi/rgbd_right/depth/image_raw
 
@@ -60,3 +60,17 @@ t12: !!opencv-matrix
    cols: 1
    dt: d
    data: [ -0.1196912874657054, 8.226041646204108e-05, -0.0003374657316917672 ]
+
+Rbc: !!opencv-matrix
+  rows: 3
+  cols: 3
+  dt: d
+  data: [ 0.0, -1.0, 0.0,
+          1.0,  0.0, 0.0,
+          0.0,  0.0, 1.0]
+
+tbc: !!opencv-matrix
+  rows: 3
+  cols: 1
+  dt: d
+  data: [ 0.0, 0.0, 0.2]

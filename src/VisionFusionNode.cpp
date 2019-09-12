@@ -37,6 +37,11 @@ mNH(nh), mPrivateNH(nh_private)
     LOG(INFO)<<"Total "<<mCameraConfigs.size() <<" cameras found!"<<endl;
     std::cout<<"Total "<<mCameraConfigs.size() <<" cameras found!"<<std::endl;
 
+    mPointCloudFilter = make_shared<PointCloudFilter>();
+
+    mPointCloudPub = mNH.advertise<sensor_msgs::PointCloud2>("/gi/perception/cloud_in", 1);
+    mLocalPoseSub = mNH.subscribe("/mavros/local_position/pose", 1, &VisionFusionNode::PoseCallback, this);
+
     //camera 0, forward facing, stereo gray image
 //    Cam_0_left(mNH, mpCameras[0]->mLeftTopic, 10);
 //    Cam_0_right(mNH, mpCameras[0]->mRightTopic, 10);
@@ -114,7 +119,7 @@ void VisionFusionNode::StereoImageCallback(const int camera_id,
     cv::Mat imLeftRect, imRightRect;
     imLeftRect = cv_ptrLeft->image;
     imRightRect = cv_ptrRight->image;
-    mpCameras[camera_id]->AddImage(imLeftRect, imRightRect, mTic);
+    mpCameras[camera_id]->AddImage(imLeftRect, imRightRect, mTwb);
 }
 
 void VisionFusionNode::DisparityCallback(const sensor_msgs::ImageConstPtr& msgLeft, int camera_id)
@@ -140,7 +145,7 @@ void VisionFusionNode::DisparityCallback(const sensor_msgs::ImageConstPtr& msgLe
 
     cv::Mat imLeftRect;
     imLeftRect = cv_ptrLeft->image;
-    mpCameras[camera_id]->AddDisparity(imLeftRect, mTic);
+    mpCameras[camera_id]->AddDisparity(imLeftRect, mTwb);
 }
 
 void VisionFusionNode::DepthCallback(const sensor_msgs::ImageConstPtr& msgLeft, int camera_id)
@@ -166,7 +171,15 @@ void VisionFusionNode::DepthCallback(const sensor_msgs::ImageConstPtr& msgLeft, 
 
     cv::Mat imLeftRect;
     imLeftRect = cv_ptrLeft->image;
-    mpCameras[camera_id]->AddDepth(imLeftRect, mTic);
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr pPC;
+    pPC = mpCameras[camera_id]->AddDepth(imLeftRect, mTwb);
+
+    sensor_msgs::PointCloud2 rosPC;
+    mPointCloudFilter->PointCloudXYZtoROSPointCloud2(*pPC, rosPC);
+
+    rosPC.header.frame_id = "map";
+    mPointCloudPub.publish(rosPC);
 }
 
 void VisionFusionNode::PoseCallback(const geometry_msgs::PoseStamped& pose)
@@ -177,20 +190,29 @@ void VisionFusionNode::PoseCallback(const geometry_msgs::PoseStamped& pose)
                          pose.pose.orientation.z, pose.pose.orientation.w);
     Eigen::Vector3d translation(pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
 
-    Sophus::SE3 se3(q, translation);
+    cout<<"q and t: "<<", "<<translation<<endl;
 
-    auto r = se3.rotationMatrix();
-    auto t = se3.translation();
+    Sophus::SE3d se3d(q, translation);
 
-    cout<<r<<", "<<t<<endl;
+
+    auto r = se3d.rotationMatrix();
+    auto t = se3d.translation();
+
+    cout<<r<<"1111111111111111111111111111111111111111111111111111111111111111111111111, "<<t<<endl;
+    cout<<t(0, 0)<<t(1, 0)<<t(2, 0)<<t(0, 0)<<endl;
 
     cv::Mat_<double> T(4,4);
     T << r(0, 0), r(0, 1), r(0, 2), t(0, 0),
-         r(1, 0), r(1, 1), r(1, 2), t(0, 1),
-         r(2, 0), r(2, 1), r(2, 2), t(0, 2),
+         r(1, 0), r(1, 1), r(1, 2), t(1, 0),
+         r(2, 0), r(2, 1), r(2, 2), t(2, 0),
          0.0,     0.0,     0.0,     1.0;
 
-    cout<<"T: "<<T<<endl;
+    cout<<T.empty()<<endl;
 
-    mTic = T;
+    cout<<"T 1111111111111111111111111111111111111111111111111111: "<<T<<endl;
+
+    cv::eigen2cv(r, mRwb);
+    cv::eigen2cv(t, mtwb);
+
+    mTwb = T;
 }

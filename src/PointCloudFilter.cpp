@@ -6,6 +6,8 @@
 
 using namespace perception;
 
+PointCloudFilter::PointCloudFilter(){};
+
 PointCloudFilter::PointCloudFilter(std::string config_path)
 {
     this->config_path = config_path;

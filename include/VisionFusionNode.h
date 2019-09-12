@@ -11,6 +11,7 @@
 #include <ros/ros.h>
 #include <ros/subscribe_options.h>
 #include <tf/transform_broadcaster.h>
+#include <sensor_msgs/PointCloud2.h>
 #include <Eigen/Dense>
 #include <std_msgs/Float32.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -50,6 +51,8 @@ namespace perception {
 
     public:
 
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
         VisionFusionNode(const ros::NodeHandle& nh, const ros::NodeHandle& nh_private);
 
         void StereoImageCallback(const int camera_id, const sensor_msgs::ImageConstPtr& msgLeft,const sensor_msgs::ImageConstPtr& msgRight);
@@ -64,7 +67,6 @@ namespace perception {
 
         ros::NodeHandle mNH;
         ros::NodeHandle mPrivateNH;
-        ros::Subscriber mLocalPoseSub;
 
         int mCameraNum;
         string mMavName;
@@ -84,7 +86,7 @@ namespace perception {
         ros::Subscriber mSubCamera_2;
         ros::Subscriber mSubCamera_3;
 
-        cv::Mat mTic, mRic, mtic;
+        cv::Mat mTwb, mRwb, mtwb;
 
     private:
 
@@ -93,6 +95,10 @@ namespace perception {
 
         geometry_msgs::PoseStamped mLocalPose;
 
+        shared_ptr<PointCloudFilter> mPointCloudFilter = nullptr;
+
+        ros::Publisher mPointCloudPub;
+        ros::Subscriber mLocalPoseSub;
     };
 
 }

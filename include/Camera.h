@@ -7,13 +7,14 @@
 
 #include "memory"
 #include <opencv2/opencv.hpp>
-#include <iostream>
-#include <iostream>
 #include <Eigen/Core>
+#include <opencv2/core/eigen.hpp>
+#include <iostream>
+#include <iostream>
 #include <math.h>
 #include <glog/logging.h>
-
-using namespace std;
+#include <PointCloudFilter.h>
+#include <pcl/common/transforms.h>
 
 namespace perception {
 
@@ -23,6 +24,8 @@ namespace perception {
 
     public:
 
+//        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
         Camera(string& config);
 
         void Preprocess(cv::Mat& ImgL, cv::Mat& ImgR);
@@ -31,17 +34,36 @@ namespace perception {
 
         void ImageAlign(cv::Mat& ImgL, cv::Mat& ImgR);
 
-        void Disparity2Pointcloud(cv::Mat& disparity, cv::Mat Tic);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr Disparity2Pointcloud(cv::Mat& disparity, cv::Mat Twb);
 
-        void Depth2Pointcloud(cv::Mat& depth, cv::Mat Tic);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr Depth2Pointcloud(cv::Mat& depth, cv::Mat Twb);
 
         cv::Mat ComputeDisparity(cv::Mat& ImgL, cv::Mat& ImgR, bool useCuda);
 
-        void AddImage(cv::Mat& ImgL, cv::Mat& ImgR, cv::Mat& Tic);
+        void AddImage(cv::Mat& ImgL, cv::Mat& ImgR, cv::Mat& Twb);
 
-        void AddDisparity(cv::Mat& disparity, cv::Mat& Tic);
+        void AddDisparity(cv::Mat& disparity, cv::Mat& Twb);
 
-        void AddDepth(cv::Mat& depth, cv::Mat& Tic);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr AddDepth(cv::Mat& depth, cv::Mat& Twb);
+
+        inline cv::Mat toTransformationMat(cv::Mat& r, cv::Mat t)
+        {
+            cv::Mat_<double> T(4,4);
+            T << r.at<double>(0, 0), r.at<double>(0, 1), r.at<double>(0, 2), t.at<double>(0, 0),
+                 r.at<double>(1, 0), r.at<double>(1, 1), r.at<double>(1, 2), t.at<double>(0, 1),
+                 r.at<double>(2, 0), r.at<double>(2, 1), r.at<double>(2, 2), t.at<double>(0, 2),
+                 0.0,     0.0,     0.0,     1.0;
+
+            return T;
+        }
+
+        // Rotation and translation from current camera system to inertial frame
+        cv::Mat mRbc, mtbc, mTbc;
+
+        // on some platforms it is required to add Eigen::DontAlign
+        Eigen::Matrix<float, 4, 4, Eigen::DontAlign> mTbc_eigen;
+//        Eigen::Matrix4f mTbc_eigen;
+//        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> mTbc_eigen;
 
     private:
 
@@ -58,18 +80,19 @@ namespace perception {
 
         cv::Mat mQ;
 
-        // Rotation and translation from current camera system to inertial frame
-        cv::Mat mRic, mtic, mTic;
-
         cv::Mat lmap1x, lmap2x, lmap1y, lmap2y;
 
-        std::vector<Eigen::Vector3f> mCameraPoints;
-        std::vector<Eigen::Vector3f> mWorldPoints;
+        pcl::PointCloud<pcl::PointXYZ> mCameraPoints;
+        pcl::PointCloud<pcl::PointXYZ> mWorldPoints;
 
+        float mBaseline = -1;
         float mKxInv = -1;
         float mKyInv = -1;
         float mCx = -1;
         float mCy = -1;
+        float mKx = -1;
+        float mKy = -1;
+        float mBF = -1;
 
     public:
 
@@ -80,6 +103,8 @@ namespace perception {
 
         // 0 -> stereo gray image, 1 -> disparity
         int mImageType = 0;
+
+
     };
 
 
