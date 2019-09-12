@@ -47,8 +47,8 @@ mNH(nh), mPrivateNH(nh_private)
     //camera 0, forward facing, disparity image
     std::cout<<mpCameras[0]->mLeftTopic<<std::endl;
 
-    mSubCamera_0 = mNH.subscribe<sensor_msgs::Image>(mpCameras[0]->mLeftTopic, 5,
-                                 boost::bind(&VisionFusionNode::DisparityCallback, this, _1, 0));
+    mSubCamera_0 = mNH.subscribe<sensor_msgs::Image>(mpCameras[0]->mDepthTopic, 5,
+                                 boost::bind(&VisionFusionNode::DepthCallback, this, _1, 0));
 
     //camera 1,  facing towards right, stereo gray image
 //    Cam_1_left(mNH, mpCameras[1]->mLeftTopic, 10);
@@ -59,8 +59,8 @@ mNH(nh), mPrivateNH(nh_private)
 
     //camera 1, facing towards right, disparity image
     std::cout<<mpCameras[1]->mLeftTopic<<std::endl;
-    mSubCamera_1 = mNH.subscribe<sensor_msgs::Image>(mpCameras[1]->mLeftTopic, 5,
-                                 boost::bind(&VisionFusionNode::DisparityCallback, this, _1, 1));
+    mSubCamera_1 = mNH.subscribe<sensor_msgs::Image>(mpCameras[1]->mDepthTopic, 5,
+                                 boost::bind(&VisionFusionNode::DepthCallback, this, _1, 1));
 
 //    //camera 2, backward facing, stereo gray image
 //    Cam_2_left(mNH, mpCameras[2]->mLeftTopic, 10);
@@ -114,11 +114,12 @@ void VisionFusionNode::StereoImageCallback(const int camera_id,
     cv::Mat imLeftRect, imRightRect;
     imLeftRect = cv_ptrLeft->image;
     imRightRect = cv_ptrRight->image;
-    mpCameras[camera_id]->AddImage(imLeftRect, imRightRect);
+    mpCameras[camera_id]->AddImage(imLeftRect, imRightRect, mTic);
 }
 
 void VisionFusionNode::DisparityCallback(const sensor_msgs::ImageConstPtr& msgLeft, int camera_id)
 {
+    LOG(INFO) <<"DisparityCallback, camera_id: "<<camera_id<< endl;
     std::cout<<"DisparityCallback, camera_id: "<<camera_id<<std::endl;
 
     if(camera_id < 0 || camera_id > mCameraNum)
@@ -139,10 +140,57 @@ void VisionFusionNode::DisparityCallback(const sensor_msgs::ImageConstPtr& msgLe
 
     cv::Mat imLeftRect;
     imLeftRect = cv_ptrLeft->image;
-    mpCameras[camera_id]->AddDisparity(imLeftRect);
+    mpCameras[camera_id]->AddDisparity(imLeftRect, mTic);
+}
+
+void VisionFusionNode::DepthCallback(const sensor_msgs::ImageConstPtr& msgLeft, int camera_id)
+{
+    LOG(INFO) <<"DepthCallback, camera_id: "<<camera_id<< endl;
+    std::cout<<"DepthCallback, camera_id: "<<camera_id<<std::endl;
+
+    if(camera_id < 0 || camera_id > mCameraNum)
+    {
+        LOG(ERROR) << "Camera Idx wrong! Neglect!" << endl;
+        return;
+    }
+
+    try
+    {
+        cv_ptrLeft = cv_bridge::toCvShare(msgLeft);
+    }
+    catch (cv_bridge::Exception& e)
+    {
+        ROS_ERROR("cv_bridge exception: %s", e.what());
+        return;
+    }
+
+    cv::Mat imLeftRect;
+    imLeftRect = cv_ptrLeft->image;
+    mpCameras[camera_id]->AddDepth(imLeftRect, mTic);
 }
 
 void VisionFusionNode::PoseCallback(const geometry_msgs::PoseStamped& pose)
 {
     mLocalPose = pose;
+
+    Eigen::Quaterniond q(pose.pose.orientation.x, pose.pose.orientation.y,
+                         pose.pose.orientation.z, pose.pose.orientation.w);
+    Eigen::Vector3d translation(pose.pose.position.x, pose.pose.position.y, pose.pose.position.z);
+
+    Sophus::SE3 se3(q, translation);
+
+    auto r = se3.rotationMatrix();
+    auto t = se3.translation();
+
+    cout<<r<<", "<<t<<endl;
+
+    cv::Mat_<double> T(4,4);
+    T << r(0, 0), r(0, 1), r(0, 2), t(0, 0),
+         r(1, 0), r(1, 1), r(1, 2), t(0, 1),
+         r(2, 0), r(2, 1), r(2, 2), t(0, 2),
+         0.0,     0.0,     0.0,     1.0;
+
+    cout<<"T: "<<T<<endl;
+
+    mTic = T;
 }

@@ -22,7 +22,7 @@ void VisionFusion::AddImage(int idx, cv::Mat& imgL, cv::Mat& imgR)
     if (imgL.empty() || imgR.empty())
         LOG(ERROR) <<"Image empty!"<< endl;
 
-    mpCameras[idx]->AddImage(imgL, imgR);
+    mpCameras[idx]->AddImage(imgL, imgR, mTic);
 }
 
 void VisionFusion::AddDisparity(int idx, cv::Mat &disparity)
@@ -33,6 +33,19 @@ void VisionFusion::AddDisparity(int idx, cv::Mat &disparity)
     if (disparity.empty())
         LOG(ERROR) <<"Disparity empty!"<< endl;
 
-    mpCameras[idx]->AddDisparity(disparity);
+    mpCameras[idx]->AddDisparity(disparity, mTic);
 }
+
+void VisionFusion::AddDepth(int idx, cv::Mat& depth)
+{
+
+    if (idx < 0 || idx > mCameraNum)
+        LOG(ERROR) <<"Camera idx: "<< idx <<" doesn't exit!"<< endl;
+
+    if (depth.empty())
+        LOG(ERROR) <<"Depth empty!"<< endl;
+
+    mpCameras[idx]->AddDepth(depth, mTic);
+}
+
 

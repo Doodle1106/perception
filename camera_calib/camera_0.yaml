@@ -1,8 +1,8 @@
 %YAML:1.0
 
 
-CAMERA_ID: 0
-IMAGE_TYPE: 1 # 1-> disparity, 0 -> stereo gray
+CAMERA_ID: 0  # forward looking camera
+IMAGE_TYPE: 1 # 1-> depth, 0 -> stereo gray
 
 LEFT.width: 752
 LEFT.height: 480
@@ -13,8 +13,9 @@ RIGHT.height: 480
 OUTPUT.width: 752
 OUTPUT.height: 480
 
-LEFT_TOPIC: /gi/rgb/depth/image_raw
-RIGHT_TOPIC: null
+LEFT_TOPIC: none
+RIGHT_TOPIC: none
+DEPTH_TOPIC: /gi/rgbd_forward/depth/image_raw
 
 LEFT.K: !!opencv-matrix
    rows: 3

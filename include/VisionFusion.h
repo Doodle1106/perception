@@ -7,6 +7,7 @@
 
 #include "Camera.h"
 
+#include <opencv2/opencv.hpp>
 #include <vector>
 #include <memory>
 #include <glog/logging.h>
@@ -24,12 +25,15 @@ namespace perception {
 
         void AddDisparity(int idx, cv::Mat& disparity);
 
+        void AddDepth(int idx, cv::Mat& depth);
+
     private:
 
         int mCameraNum;
 
         vector<shared_ptr<Camera> > mpCameras;
 
+        cv::Mat mTic;
 
     };
 

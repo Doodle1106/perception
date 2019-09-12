@@ -33,6 +33,17 @@
 #include <sensor_msgs/Image.h>
 #include <string>
 
+#include <tf/LinearMath/Matrix3x3.h>
+#include <tf/LinearMath/Quaternion.h>
+#include <tf/LinearMath/Vector3.h>
+#include <tf/LinearMath/Transform.h>
+
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <opencv2/core/eigen.hpp>
+#include "se3.hpp"
+#include "so3.hpp"
+
 namespace perception {
 
     class VisionFusionNode{
@@ -40,6 +51,14 @@ namespace perception {
     public:
 
         VisionFusionNode(const ros::NodeHandle& nh, const ros::NodeHandle& nh_private);
+
+        void StereoImageCallback(const int camera_id, const sensor_msgs::ImageConstPtr& msgLeft,const sensor_msgs::ImageConstPtr& msgRight);
+
+        void DisparityCallback(const sensor_msgs::ImageConstPtr& msgLeft, int camera_id);
+
+        void DepthCallback(const sensor_msgs::ImageConstPtr& msgLeft, int camera_id);
+
+        void PoseCallback(const geometry_msgs::PoseStamped& pose);
 
     private:
 
@@ -65,13 +84,9 @@ namespace perception {
         ros::Subscriber mSubCamera_2;
         ros::Subscriber mSubCamera_3;
 
+        cv::Mat mTic, mRic, mtic;
+
     private:
-
-        void StereoImageCallback(const int camera_id, const sensor_msgs::ImageConstPtr& msgLeft,const sensor_msgs::ImageConstPtr& msgRight);
-
-        void DisparityCallback(const sensor_msgs::ImageConstPtr& msgLeft, int camera_id);
-
-        void PoseCallback(const geometry_msgs::PoseStamped& pose);
 
         cv_bridge::CvImageConstPtr cv_ptrLeft;
         cv_bridge::CvImageConstPtr cv_ptrRight;

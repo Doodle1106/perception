@@ -9,8 +9,11 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <iostream>
+#include <Eigen/Core>
+#include <math.h>
 #include <glog/logging.h>
 
+using namespace std;
 
 namespace perception {
 
@@ -30,11 +33,15 @@ namespace perception {
 
         void Disparity2Pointcloud(cv::Mat& disparity, cv::Mat Tic);
 
+        void Depth2Pointcloud(cv::Mat& depth, cv::Mat Tic);
+
         cv::Mat ComputeDisparity(cv::Mat& ImgL, cv::Mat& ImgR, bool useCuda);
 
-        void AddImage(cv::Mat& ImgL, cv::Mat& ImgR);
+        void AddImage(cv::Mat& ImgL, cv::Mat& ImgR, cv::Mat& Tic);
 
-        void AddDisparity(cv::Mat& disparity);
+        void AddDisparity(cv::Mat& disparity, cv::Mat& Tic);
+
+        void AddDepth(cv::Mat& depth, cv::Mat& Tic);
 
     private:
 
@@ -43,7 +50,7 @@ namespace perception {
         cv::Mat mCurrentDisparity;
 
         // Rotation matrixs, translation matrixs, camera matrixs, and distortion matrixs
-        cv::Mat mR12, mt12,  mK1, mK2, mD1, mD2;
+        cv::Mat mK1, mK2, mD1, mD2, mR12, mt12;
 
         cv::Size mImageLeftSize, mImageRightSize, mFinalSize;
 
@@ -56,9 +63,19 @@ namespace perception {
 
         cv::Mat lmap1x, lmap2x, lmap1y, lmap2y;
 
+        std::vector<Eigen::Vector3f> mCameraPoints;
+        std::vector<Eigen::Vector3f> mWorldPoints;
+
+        float mKxInv = -1;
+        float mKyInv = -1;
+        float mCx = -1;
+        float mCy = -1;
+
     public:
 
         string mLeftTopic, mRightTopic;
+        string mDepthTopic;
+
         int mCameraID = 0;
 
         // 0 -> stereo gray image, 1 -> disparity
