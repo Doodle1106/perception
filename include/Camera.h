@@ -62,8 +62,17 @@ namespace perception {
 
         // on some platforms it is required to add Eigen::DontAlign
         Eigen::Matrix<float, 4, 4, Eigen::DontAlign> mTbc_eigen;
-//        Eigen::Matrix4f mTbc_eigen;
-//        Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> mTbc_eigen;
+
+
+        /* NOTE we have to manually apply this transformation if we are in simulation environment(ROS)
+         *          +Z
+         *           ^    ^ +X
+         *           |  /
+         *           |/
+         * +Y <------0              <-- Frame in ROS
+         *
+         */
+        Eigen::Matrix<float, 4, 4, Eigen::DontAlign> mTsim_eigen;
 
     private:
 
@@ -94,6 +103,8 @@ namespace perception {
         float mKy = -1;
         float mBF = -1;
 
+
+
     public:
 
         string mLeftTopic, mRightTopic;
@@ -104,6 +115,7 @@ namespace perception {
         // 0 -> stereo gray image, 1 -> disparity
         int mImageType = 0;
 
+        int mSimulationMode = -1;
 
     };
 

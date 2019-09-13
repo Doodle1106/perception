@@ -13,6 +13,9 @@ RIGHT.height: 480
 OUTPUT.width: 752
 OUTPUT.height: 480
 
+RUN_SIM: 1 # 1 -> in simulation mode, where x points to North, y points to west and z upwards.
+           # 0 -> not in simulation mode
+
 LEFT_TOPIC: none
 RIGHT_TOPIC: none
 DEPTH_TOPIC: /gi/rgbd_forward/depth/image_raw

@@ -14,7 +14,7 @@ mNH(nh), mPrivateNH(nh_private)
 {
 
     mPrivateNH.param<string>("mav_name", mMavName, "None");
-    mPrivateNH.param<int>("camera_number", mCameraNum, 2);
+    mPrivateNH.param<int>("camera_number", mCameraNum, 4);
 
     mCameraConfigs.resize(mCameraNum);
     mpCameras.resize(mCameraNum);
@@ -50,8 +50,7 @@ mNH(nh), mPrivateNH(nh_private)
 //    sync.registerCallback(boost::bind(StereoImageCallback, 0, _1, _2), this);
 
     //camera 0, forward facing, disparity image
-    std::cout<<mpCameras[0]->mLeftTopic<<std::endl;
-
+    std::cout<<mpCameras[0]->mDepthTopic<<std::endl;
     mSubCamera_0 = mNH.subscribe<sensor_msgs::Image>(mpCameras[0]->mDepthTopic, 5,
                                  boost::bind(&VisionFusionNode::DepthCallback, this, _1, 0));
 
@@ -63,7 +62,7 @@ mNH(nh), mPrivateNH(nh_private)
 //    sync.registerCallback(boost::bind(StereoImageCallback, 1, _1, _2), this);
 
     //camera 1, facing towards right, disparity image
-    std::cout<<mpCameras[1]->mLeftTopic<<std::endl;
+    std::cout<<mpCameras[1]->mDepthTopic<<std::endl;
     mSubCamera_1 = mNH.subscribe<sensor_msgs::Image>(mpCameras[1]->mDepthTopic, 5,
                                  boost::bind(&VisionFusionNode::DepthCallback, this, _1, 1));
 
@@ -75,10 +74,10 @@ mNH(nh), mPrivateNH(nh_private)
 //    sync.registerCallback(boost::bind(StereoImageCallback, 2, _1, _2), this);
 //
 //    //camera 2, backward facing, disparity image
-//    mSubCamera_2 = nh.subscribe<sensor_msgs::Image> (mpCameras[2]->mLeftTopic, 5,
-//                                                     boost::bind(DisparityCallback, 2, _1),
-//                                                     this,ros::TransportHints().tcpNoDelay());
-//
+    std::cout<<mpCameras[2]->mDepthTopic<<std::endl;
+    mSubCamera_2 = mNH.subscribe<sensor_msgs::Image>(mpCameras[2]->mDepthTopic, 5,
+                                                     boost::bind(&VisionFusionNode::DepthCallback, this, _1, 2));
+
 //    //camera 3, facing towards left, stereo gray image
 //    Cam_3_left(mNH, mpCameras[i]->mLeftTopic, 10);
 //    Cam_3_right(mNH, mpCameras[i]->mRightTopic, 10);
@@ -87,9 +86,9 @@ mNH(nh), mPrivateNH(nh_private)
 //    sync.registerCallback(boost::bind(StereoImageCallback, 3, _1, _2), this);
 //
 //    //camera 3, facing towards left, disparity image
-//    mSubCamera_3 = nh.subscribe<sensor_msgs::Image> (mpCameras[3]->mLeftTopic, 5,
-//                                                     boost::bind(DisparityCallback, 3, _1),
-//                                                     this,ros::TransportHints().tcpNoDelay());
+    std::cout<<mpCameras[3]->mDepthTopic<<std::endl;
+    mSubCamera_3 = mNH.subscribe<sensor_msgs::Image>(mpCameras[3]->mDepthTopic, 5,
+                                                     boost::bind(&VisionFusionNode::DepthCallback, this, _1, 3));
 
 
 }

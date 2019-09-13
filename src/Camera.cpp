@@ -38,6 +38,8 @@ Camera::Camera(string& config)
     mCameraID = fsSettings["CAMERA_ID"];
     mImageType = fsSettings["IMAGE_TYPE"];
 
+    mSimulationMode = fsSettings["RUN_SIM"];
+
     if (mK1.empty() || mK2.empty() || mD1.empty() || mD2.empty() ||
         mR12.empty() || mt12.empty() || mRbc.empty() || mtbc.empty())
     {
@@ -62,6 +64,11 @@ Camera::Camera(string& config)
     mTbc = toTransformationMat(mRbc, mtbc);
     cv::cv2eigen(mTbc, mTbc_eigen);
 
+    mTsim_eigen <<  0.0,  0.0, 1.0, 0.0,
+                   -1.0,  0.0, 0.0, 0.0,
+                    0.0, -1.0, 0.0, 0.0,
+                    0.0,  0.0, 0.0, 0.0;
+
     LOG(INFO)<<"Camera init succeed!: "<<config<<endl;
 
     cout<<"mK1: "<<endl<<mK1<<endl;
@@ -78,6 +85,8 @@ Camera::Camera(string& config)
     cout<<"mtbc: "<<endl<<mtbc<<endl;
     cout<<"mTbc: "<<endl<<mTbc<<endl;
     cout<<"mTbc_eigen: "<<endl<<mTbc_eigen<<endl;
+    cout<<"mTsim_eigen: "<<mTsim_eigen<<endl;
+    cout<<"mSimulationMode?: "<<mSimulationMode<<endl;
 };
 
 bool Camera::ImageAlignInit()
@@ -133,9 +142,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr Camera::AddDepth(cv::Mat& depth, cv::Mat& Tw
     if (depth.empty())
         LOG(ERROR) <<"Added depth empty, neglect!"<< endl;
 
-
     return this->Depth2Pointcloud(depth, Twb);
-
 }
 
 void Camera::ImageAlign(cv::Mat& ImgL, cv::Mat& ImgR)
@@ -204,6 +211,13 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr Camera::Depth2Pointcloud(cv::Mat& depth, cv:
 
     cout<<"camera_points: "<<camera_points<<endl;
 
+
+    if(mSimulationMode)
+    {
+        pcl::PointCloud<pcl::PointXYZ>::Ptr ros_pts(new pcl::PointCloud <pcl::PointXYZ>);
+        pcl::transformPointCloud(*camera_points, *camera_points, mTsim_eigen);
+    }
+
     pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_pts(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::transformPointCloud(*camera_points, *transformed_pts, mTbc_eigen);
 
@@ -213,8 +227,19 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr Camera::Depth2Pointcloud(cv::Mat& depth, cv:
     pcl::PointCloud<pcl::PointXYZ>::Ptr local_frame_pts(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::transformPointCloud(*transformed_pts, *local_frame_pts, Twb_eigen);
 
-    //cout<<"total points converted: " <<mCameraPoints.size()<<endl;
-    return local_frame_pts;
+    cout<<"Twb_eigen: "<<Twb_eigen<<endl;
+
+    Eigen::Matrix<float, 4, 4, Eigen::DontAlign> Debug;
+    Debug << -1.0,  0.0, 0.0, 0.0,
+              0.0, -1.0, 0.0, 0.0,
+              0.0,  0.0, 1.0, 0.0,
+              0.0,  0.0, 0.0, 0.0;
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr debug_local_frame_pts(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::transformPointCloud(*local_frame_pts, *debug_local_frame_pts, Debug);
+
+    //return camera_points;
+    return debug_local_frame_pts;
 }
 
 cv::Mat Camera::ComputeDisparity(cv::Mat& ImgL, cv::Mat& ImgR, bool useCuda)

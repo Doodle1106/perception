@@ -1,7 +1,7 @@
 %YAML:1.0
 
 
-CAMERA_ID: 1  # right looking camera
+CAMERA_ID: 2  # left looking camera
 IMAGE_TYPE: 1 # 1-> depth, 0 -> stereo gray
 
 LEFT.width: 752
@@ -18,7 +18,7 @@ RUN_SIM: 1  # 1 -> in simulation mode, where x points to North, y points to west
 
 LEFT_TOPIC: none
 RIGHT_TOPIC: none
-DEPTH_TOPIC: /gi/rgbd_right/depth/image_raw
+DEPTH_TOPIC: /gi/rgbd_left/depth/image_raw
 
 LEFT.K: !!opencv-matrix
    rows: 3
@@ -64,13 +64,21 @@ t12: !!opencv-matrix
    dt: d
    data: [ -0.1196912874657054, 8.226041646204108e-05, -0.0003374657316917672 ]
 
+#Rbc: !!opencv-matrix
+#  rows: 3
+#  cols: 3
+#  dt: d
+#  data: [  0.0, -1.0, 0.0,
+#           1.0,  0.0, 0.0,
+#           0.0,  0.0, 1.0]
+
 Rbc: !!opencv-matrix
-  rows: 3
-  cols: 3
-  dt: d
-  data: [  0.0,  1.0, 0.0,
-          -1.0,  0.0, 0.0,
-           0.0,  0.0, 1.0]
+    rows: 3
+    cols: 3
+    dt: d
+    data: [  0.0, -0.5, 0.0,
+             0.5,  0.0, 0.0,
+             0.0,  0.0, 1.0]
 
 tbc: !!opencv-matrix
   rows: 3
