@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/shr/software/perception_ws/src/perception/cmake-build-debug/devel/setup.sh

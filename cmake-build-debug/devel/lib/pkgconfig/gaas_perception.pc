@@ -1,0 +1,8 @@
+prefix=/home/shr/software/perception_ws/src/perception/cmake-build-debug/devel
+
+Name: gaas_perception
+Description: Description of gaas_perception
+Version: 0.0.0
+Cflags: -I/home/shr/software/perception_ws/src/perception/include
+Libs: -L/home/shr/software/perception_ws/src/perception/cmake-build-debug/devel/lib 
+Requires: 

@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC  -std=c++11 -fpermissive -msse -msse2 -march=native  -g   -shared -Wl,-soname,libperception.so -o devel/lib/libperception.so CMakeFiles/perception.dir/src/PointCloudFilter.cpp.o CMakeFiles/perception.dir/src/VisionFusion.cpp.o CMakeFiles/perception.dir/src/VisionFusionNode.cpp.o CMakeFiles/perception.dir/src/Camera.cpp.o 
